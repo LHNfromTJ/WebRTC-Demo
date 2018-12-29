@@ -32,4 +32,7 @@ function log(rTCClient) {
     rTCClient.on('LOG_receive_stream', function () {
         console.log('接收到其他用户的视频流并通知浏览器添加显示')
     })
+    rTCClient.on('LOG_receive_datachannel', function () {
+        console.log('接收到其他用户的消息')
+    })
 }

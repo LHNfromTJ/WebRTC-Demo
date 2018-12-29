@@ -156,7 +156,7 @@ class RTCClient {
         this.createPeerConnections()
         // 将本地流添加到所有的PeerConnection实例中，使其他的用户可以看到本机视频
         this.addStreams()
-        // 对所有的PeerConnections创建Data channel用于传输文件
+        // 对所有的PeerConnections创建Data channel用于传输信息
         this.addDataChannels()
         // 向所有PeerConnection发送Offer信令
         this.sendOffers()
@@ -169,15 +169,15 @@ class RTCClient {
     }
 
     addStreams() {
-        for (const key in this.peerConnections) {
-            this.peerConnections[key].addStream(this.localMediaStream)
+        for (const id in this.peerConnections) {
+            this.peerConnections[id].addStream(this.localMediaStream)
         }
     }
 
     addDataChannels() {
-        for (const key in this.peerConnections) {
-            const pc = this.peerConnections[key]
-            this.addDataChannel(key, pc.createDataChannel(undefined))
+        for (const id in this.peerConnections) {
+            const pc = this.peerConnections[id]
+            this.addDataChannel(id, pc.createDataChannel(id))
         }
     }
     // 循环所有已连接的用户，不包括自身
@@ -238,6 +238,8 @@ class RTCClient {
         }
 
         pc.ondatachannel = (e) => {
+            this.log('receive_datachannel')
+            // 创建一份对面给我的channel
             this.addDataChannel(socketId, e.channel)
         }
 
@@ -258,7 +260,7 @@ class RTCClient {
 
         this.dataChannels[socketId] = channel
 
-        return channel
+        // return channel
     }
     // 广播消息
     broadcast(message) {
