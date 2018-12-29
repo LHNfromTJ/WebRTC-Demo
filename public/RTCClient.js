@@ -78,10 +78,11 @@ class RTCClient {
         this.on('SOCKET_ice_candidate', (data) => {
             this.log('receive_ice_candidate')
             // const iceCandidate = new RTCIceCandidate(data)
-            // 收集对方的ice候选信息以进行协商
-            const iceCandidate = new RTCIceCandidate(data.candidateObj)
+            // const iceCandidate = new RTCIceCandidate(data.candidateObj)
             const pc = this.peerConnections[data.socketId]
-            pc.addIceCandidate(iceCandidate)
+            // 收集对方的ice候选信息以进行协商
+            // pc.addIceCandidate(iceCandidate)
+            pc.addIceCandidate(data.candidateObj)
         })
         // 房间中的其他用户接收到新用户连接
         this.on('SOCKET_add_user', (data) => {
