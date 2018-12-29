@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>WebRTC-Demo</title>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #root {
+            width: 100%;
+            height: 100%;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #localVideo {
+            display: block;
+            margin: 0 auto;
+            margin-bottom: 10px;
+        }
+
+        #remoteVideos {
+            width: 100%;
+            padding: 10px 0;
+            margin-top: 10px;
+            border-top: 1px solid #aaa;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100%;
+            padding-right: 300px;
+            box-sizing: border-box;
+        }
+
+        .talk-room {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            float: right;
+        }
+
+        .talk-items-container {
+            overflow-y: auto;
+            width: 100%;
+            height: 100%;
+            padding-bottom: 30px;
+            border-left: 1px solid #aaa;
+            box-sizing: border-box;
+        }
+
+        .talk-items {
+            padding: 10px;
+        }
+
+        .talk-item {
+            margin-bottom: 5px;
+        }
+
+        .talk-item.is-me {
+            text-align: right;
+        }
+
+        .talk-input {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 30px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root">
+        <div class="container">
+            <div class="video-container">
+                <video id="localVideo" width="320" height="240" autoplay></video>
+                <div id="remoteVideos"></div>
+            </div>
+            <div class="talk-room">
+                <div class="talk-items-container">
+                    <ul id="talkItems" class="talk-items"></ul>
+                </div>
+                <input id="talkInput" class="talk-input" type="textarea" v-model="msg" @keydown.enter="sendMsg" />
+            </div>
+        </div>
+    </div>
+    <script src='/RTCClient.js'></script>
+    <script src='/log.js'></script>
+    <script>
+        // 客户端：进入页面，连接socket服务器，并告诉服务器我要加入聊天室
+        // 服务器端：维护一个用户列表，接收到用户加入的消息，将新加入的用户放入列表中，通知这个新用户加入成功并通知在聊天室内的其他用户有一名新用户进来了
+        // 新用户：接收到加入成功的消息后，通知浏览器创建本地视频流并设置到video标签上
+        // 针对聊天室中的所有用户new PeerConnection，并给他们发送offer
+        // 老用户：接收到新用户加入的消息，针对这个新用户new PeerConnection
+        // 接收到新用户的offer后发送answer回应建立连接
+
+        const rTCClient = new RTCClient()
+        log(rTCClient)
+        // const nick = prompt("请输入你的昵称")
+        const nick = ''
+        const remoteVideos = document.getElementById('remoteVideos')
+        const localVideo = document.getElementById('localVideo')
+        const talkItems = document.getElementById('talkItems')
+        const talkInput = document.getElementById('talkInput')
+
+        rTCClient.connect(`wss://${location.host}/`, {
+            nick
+        })
+        // 成功创建WebSocket连接
+        rTCClient.on("connectd", () => {
+            // 创建本地视频流
+            rTCClient.createLocalStream({
+                video: true,
+                audio: true
+            })
+        })
+        // 创建本地视频流成功
+        rTCClient.on("stream_created", (stream) => {
+            // chrome最新版(71.x)已经不支持设置video的src属性了，前面的版本会报warning
+            // this.localVideoSrc = URL.createObjectURL(stream)
+            // 最新的是将流设置到srcObject属性上
+            localVideo.srcObject = stream
+        })
+        // 接收到其他用户的视频流
+        rTCClient.on('add_user', (stream, socketId) => {
+            const video = document.createElement('video')
+            video.setAttribute('id', socketId)
+            video.setAttribute('width', 320)
+            video.setAttribute('height', 240)
+            video.setAttribute('autoplay', '')
+            video.srcObject = stream
+            remoteVideos.appendChild(video)
+        })
+        // 删除其他用户
+        rTCClient.on('leave_user', (socketId) => {
+            const removeVideo = document.getElementById(socketId)
+            remoteVideos.removeChild(removeVideo)
+        })
+        //接收到文字信息
+        rTCClient.on('new_message', (message, userInfo) => {
+            const li = document.createElement('li')
+            li.setAttribute('class', 'talk-item')
+            li.innerHTML = `${userInfo.nick}：<br />${message}`
+            talkItems.appendChild(li)
+        })
+        // 输入框回车事件
+        talkInput.addEventListener('keydown', function (e) {
+            if (e.keyCode === 13) {
+                rTCClient.broadcast(talkInput.value)
+                const li = document.createElement('li')
+                li.setAttribute('class', 'talk-item is-me')
+                li.innerHTML = `${nick}：<br />${talkInput.value}`
+                talkItems.appendChild(li)
+                talkInput.value = ''
+            }
+        })
+    </script>
+</body>
+
+</html>

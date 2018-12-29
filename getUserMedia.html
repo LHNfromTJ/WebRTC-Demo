@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>getUserMedia</title>
+</head>
+
+<body>
+    <video id="video" autoplay width=320 heght=240></video>
+    <script>
+        const video = document.getElementById('video')
+        // 兼容性判断
+        const getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia)
+
+        // 老版写法，在web标准中已废弃，但是也被大多数浏览器支持
+        // getUserMedia.call(
+        //     navigator,
+        //     {
+        //         video: true,
+        //         audio: true
+        //     },
+        //     function (stream) {
+        //         // 老写法，最新版Chrome（71.x）直接报错
+        //         // https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL
+        //         // video.src = window.URL.createObjectURL(localMediaStream)
+        //         // https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLMediaElement/srcObject
+        //         video.srcObject = stream
+        //     },
+        //     function (error) {
+        //         console.log(error)
+        //     }
+        // )
+
+        // 最新的标准，也可以用promise了
+        // https://developer.mozilla.org/zh-CN/docs/Web/API/MediaDevices
+        navigator.mediaDevices.getUserMedia({
+            // 可以设置很多关于视频方面的设置，视频宽高比、视频帧速率...
+            // 是否获取视频
+            video: true,
+            // // https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints/facingMode
+            // video: {
+            //     // 使用前置摄像头
+            //     facingMode: 'user',
+            //     // 使用后置摄像头
+            //     facingMode: 'environment'
+            // },
+            // 是否获取音频
+            audio: true
+        })
+            .then(function (stream) {
+                video.srcObject = stream
+                video.onloadedmetadata = function () {
+                    console.log("Id: " + stream.id)
+                    console.log("AudioTracks", stream.getAudioTracks())
+                    console.log("VideoTracks", stream.getVideoTracks())
+                }
+            })
+            .catch(function (error) {
+                // AbortError：硬件问题
+                // NotAllowedError：用户拒绝了当前的浏览器实例的访问请求；或者用户拒绝了当前会话的访问；或者用户在全局范围内拒绝了所有媒体访问请求
+                // NotFoundError：找不到满足请求参数的媒体类型
+                // NotReadableError：操作系统上某个硬件、浏览器或者网页层面发生的错误导致设备无法被访问
+                // OverConstrainedError：指定的要求无法被设备满足
+                // SecurityError：安全错误，在getUserMedia() 被调用的 Document 上面，使用设备媒体被禁止。这个机制是否开启或者关闭取决于单个用户的偏好设置
+                // TypeError：类型错误，constraints对象未设置［空］，或者都被设置为false
+                console.log(error.name)
+            })
+
+        // 获取本机都有哪些可用设备
+        navigator.mediaDevices.enumerateDevices().then(e => { console.log(e) })
+    </script>
+</body>
+
+</html>
