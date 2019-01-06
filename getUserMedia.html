@@ -16,23 +16,23 @@
         const getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia)
 
         // 老版写法，在web标准中已废弃，但是也被大多数浏览器支持
-        // getUserMedia.call(
-        //     navigator,
-        //     {
-        //         video: true,
-        //         audio: true
-        //     },
-        //     function (stream) {
-        //         // 老写法，最新版Chrome（71.x）直接报错
-        //         // https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL
-        //         // video.src = window.URL.createObjectURL(localMediaStream)
-        //         // https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLMediaElement/srcObject
-        //         video.srcObject = stream
-        //     },
-        //     function (error) {
-        //         console.log(error)
-        //     }
-        // )
+        getUserMedia.call(
+            navigator,
+            {
+                video: true,
+                audio: true
+            },
+            function (stream) {
+                // 老写法，最新版Chrome（71.x）直接报错
+                // https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL
+                // video.src = window.URL.createObjectURL(localMediaStream)
+                // https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLMediaElement/srcObject
+                video.srcObject = stream
+            },
+            function (error) {
+                console.log(error)
+            }
+        )
 
         // 最新的标准，也可以用promise了
         // https://developer.mozilla.org/zh-CN/docs/Web/API/MediaDevices
@@ -70,7 +70,7 @@
             })
 
         // 获取本机都有哪些可用设备
-        navigator.mediaDevices.enumerateDevices().then(e => { console.log(e) })
+        // navigator.mediaDevices.enumerateDevices().then(e => { console.log(e) })
     </script>
 </body>
 

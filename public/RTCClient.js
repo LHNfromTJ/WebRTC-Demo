@@ -111,7 +111,6 @@ class RTCClient {
             pc.setRemoteDescription(data.sdp)
             // 进行应答
             pc.createAnswer(
-                // 这里的sdp全称Session Description Protocal
                 (sdp) => {
                     this.log('create_answer')
                     pc.setLocalDescription(sdp)
@@ -187,6 +186,7 @@ class RTCClient {
             // 发起一个呼叫，我理解的就是创建一个本地的描述
             // 用来唯一标示这个peerConnection，用于和其他浏览器的进行配对
             pc.createOffer(
+                // Session Description Protocal
                 (sdp) => {
                     this.log('create_offer')
                     pc.setLocalDescription(sdp)
