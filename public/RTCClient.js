@@ -77,11 +77,8 @@ class RTCClient {
         })
         this.on('SOCKET_ice_candidate', (data) => {
             this.log('receive_ice_candidate')
-            // const iceCandidate = new RTCIceCandidate(data)
-            // const iceCandidate = new RTCIceCandidate(data.candidateObj)
             const pc = this.peerConnections[data.socketId]
             // 收集对方的ice候选信息以进行协商
-            // pc.addIceCandidate(iceCandidate)
             pc.addIceCandidate(data.candidateObj)
         })
         // 房间中的其他用户接收到新用户连接
@@ -107,7 +104,6 @@ class RTCClient {
             // 找到这个新用户
             const pc = this.peerConnections[data.socketId]
             // 设置对方的sdp，为了配对用
-            // pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
             pc.setRemoteDescription(data.sdp)
             // 进行应答
             pc.createAnswer(
@@ -128,7 +124,6 @@ class RTCClient {
         this.on('SOCKET_answer', (data) => {
             this.log('receive_answer')
             const pc = this.peerConnections[data.socketId]
-            // pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
             pc.setRemoteDescription(data.sdp)
         })
         // 创建与其他用户的连接
@@ -219,11 +214,6 @@ class RTCClient {
             this.log('ice_candidate', e.candidate)
             // ice的相关信息如果有，发给对方，如果是null的话，说明已经收集完成
             if (e.candidate) {
-                // this.socketSend(this.socket, 'ice_candidate', {
-                //     label: e.candidate.sdpMLineIndex,
-                //     candidate: e.candidate.candidate,
-                //     socketId
-                // })
                 this.socketSend(this.socket, 'ice_candidate', {
                     candidateObj: e.candidate,
                     socketId
