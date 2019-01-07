@@ -117,14 +117,13 @@
 
         const rTCClient = new RTCClient()
         log(rTCClient)
-        // const nick = prompt("请输入你的昵称")
-        const nick = ''
+        const nick = prompt("请输入你的昵称")
         const remoteVideos = document.getElementById('remoteVideos')
         const localVideo = document.getElementById('localVideo')
         const talkItems = document.getElementById('talkItems')
         const talkInput = document.getElementById('talkInput')
 
-        rTCClient.connect(`wss://${location.host}/`, {
+        rTCClient.connect(`ws://${location.host}/`, {
             nick
         })
         // 成功创建WebSocket连接

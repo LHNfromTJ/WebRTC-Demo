@@ -45,7 +45,7 @@ class RTCClient {
             if (data.eventName) this.emit(data.eventName, data.data)
         }
         socket.onclose = () => {
-            // 关闭视频
+            // 关闭视频x
             this.localMediaStream.close()
             // 关闭数据通道
             for (const key in this.peerConnections) {
