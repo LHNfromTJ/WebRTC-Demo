@@ -123,7 +123,7 @@
         const talkItems = document.getElementById('talkItems')
         const talkInput = document.getElementById('talkInput')
 
-        rTCClient.connect(`ws://${location.host}/`, {
+        rTCClient.connect(`wss://${location.host}/`, {
             nick
         })
         // 成功创建WebSocket连接
@@ -136,9 +136,6 @@
         })
         // 创建本地视频流成功
         rTCClient.on("stream_created", (stream) => {
-            // chrome最新版(71.x)已经不支持设置video的src属性了，前面的版本会报warning
-            // this.localVideoSrc = URL.createObjectURL(stream)
-            // 最新的是将流设置到srcObject属性上
             localVideo.srcObject = stream
         })
         // 接收到其他用户的视频流

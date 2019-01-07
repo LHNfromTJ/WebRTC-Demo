@@ -249,8 +249,6 @@ class RTCClient {
         }
 
         this.dataChannels[socketId] = channel
-
-        // return channel
     }
     // 广播消息
     broadcast(message) {
